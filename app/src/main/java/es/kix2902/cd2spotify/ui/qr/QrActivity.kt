@@ -4,15 +4,14 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
-import androidx.activity.viewModels
+import android.view.HapticFeedbackConstants
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.barcode.Barcode
-import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
@@ -21,16 +20,26 @@ import java.util.concurrent.Executors
 
 class QrActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityQrBinding
-    private val viewModel: QrViewModel by viewModels()
+    companion object {
+        private const val PERMISSION_CAMERA_REQUEST = 1234
+    }
 
-    private var lensFacing = CameraSelector.LENS_FACING_BACK
-    private val screenAspectRatio = AspectRatio.RATIO_4_3
+    private lateinit var binding: ActivityQrBinding
 
     private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraSelector: CameraSelector? = null
+    private val cameraSelector = CameraSelector.Builder()
+        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+        .build()
+
     private var previewUseCase: Preview? = null
+
     private var analysisUseCase: ImageAnalysis? = null
+    private val cameraExecutor = Executors.newSingleThreadExecutor()
+    private val barcodeOptions = BarcodeScannerOptions.Builder()
+        .setBarcodeFormats(Barcode.FORMAT_UPC_A, Barcode.FORMAT_UPC_E)
+        .build()
+    private val barcodeScanner = BarcodeScanning.getClient(barcodeOptions)
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +50,10 @@ class QrActivity : AppCompatActivity() {
     }
 
     private fun setupCamera() {
-        cameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
+        cameraProviderFuture.addListener({
+            cameraProvider = cameraProviderFuture.get()
 
-        viewModel.processCameraProvider.observe(this, { provider: ProcessCameraProvider? ->
-            cameraProvider = provider
             if (isCameraPermissionGranted()) {
                 bindCameraUseCases()
             } else {
@@ -54,8 +63,7 @@ class QrActivity : AppCompatActivity() {
                     PERMISSION_CAMERA_REQUEST
                 )
             }
-        }
-        )
+        }, ContextCompat.getMainExecutor(this))
     }
 
     private fun isCameraPermissionGranted(): Boolean {
@@ -74,100 +82,69 @@ class QrActivity : AppCompatActivity() {
             if (isCameraPermissionGranted()) {
                 bindCameraUseCases()
             } else {
-                Log.e(TAG, "no camera permission")
+                Toast.makeText(this, "Camera permission is mandatory", Toast.LENGTH_LONG).show()
+                finish()
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     private fun bindCameraUseCases() {
-        bindPreviewUseCase()
-        bindAnalyseUseCase()
-    }
-
-    private fun bindPreviewUseCase() {
         if (cameraProvider == null) {
-            return
+            Toast.makeText(this, "Error initializing camera", Toast.LENGTH_LONG).show()
+            finish()
         }
-        if (previewUseCase != null) {
-            cameraProvider!!.unbind(previewUseCase)
-        }
+
+        val rotation = binding.cameraPreview.display.rotation
+        val aspectRatio = AspectRatio.RATIO_4_3
 
         previewUseCase = Preview.Builder()
-            .setTargetAspectRatio(screenAspectRatio)
-            .setTargetRotation(binding.cameraPreview.display.rotation)
+            .setTargetAspectRatio(aspectRatio)
+            .setTargetRotation(rotation)
             .build()
-        previewUseCase!!.setSurfaceProvider(binding.cameraPreview.surfaceProvider)
-
-        try {
-            cameraProvider!!.bindToLifecycle(this, cameraSelector!!, previewUseCase)
-
-        } catch (illegalStateException: IllegalStateException) {
-            Log.e(TAG, illegalStateException.message ?: "IllegalStateException")
-        } catch (illegalArgumentException: IllegalArgumentException) {
-            Log.e(TAG, illegalArgumentException.message ?: "IllegalArgumentException")
-        }
-    }
-
-    private fun bindAnalyseUseCase() {
-        val barcodeOptions = BarcodeScannerOptions.Builder()
-            .setBarcodeFormats(Barcode.FORMAT_UPC_A, Barcode.FORMAT_UPC_E)
-            .build();
-        val barcodeScanner = BarcodeScanning.getClient(barcodeOptions)
-
-        if (cameraProvider == null) {
-            return
-        }
-        if (analysisUseCase != null) {
-            cameraProvider!!.unbind(analysisUseCase)
-        }
 
         analysisUseCase = ImageAnalysis.Builder()
-            .setTargetAspectRatio(screenAspectRatio)
-            .setTargetRotation(binding.cameraPreview.display.rotation)
+            .setTargetAspectRatio(aspectRatio)
+            .setTargetRotation(rotation)
             .build()
+            .also {
+                it.setAnalyzer(cameraExecutor, this@QrActivity::processImageProxy)
+            }
 
 
-        // Initialize our background executor
-        val cameraExecutor = Executors.newSingleThreadExecutor()
-
-        analysisUseCase?.setAnalyzer(cameraExecutor, { imageProxy ->
-            processImageProxy(barcodeScanner, imageProxy)
-        })
+        cameraProvider!!.unbindAll()
 
         try {
-            cameraProvider!!.bindToLifecycle(this, cameraSelector!!, analysisUseCase)
+            cameraProvider!!.bindToLifecycle(this, cameraSelector, previewUseCase, analysisUseCase)
+            previewUseCase?.setSurfaceProvider(binding.cameraPreview.surfaceProvider)
 
-        } catch (illegalStateException: IllegalStateException) {
-            Log.e(TAG, illegalStateException.message ?: "IllegalStateException")
-        } catch (illegalArgumentException: IllegalArgumentException) {
-            Log.e(TAG, illegalArgumentException.message ?: "IllegalArgumentException")
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error initializing camera", Toast.LENGTH_LONG).show()
+            finish()
         }
     }
 
     @SuppressLint("UnsafeExperimentalUsageError")
-    private fun processImageProxy(
-        barcodeScanner: BarcodeScanner,
-        imageProxy: ImageProxy
-    ) {
+    private fun processImageProxy(imageProxy: ImageProxy) {
         val inputImage =
             InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
 
         barcodeScanner.process(inputImage)
             .addOnSuccessListener { barcodes ->
-                barcodes.forEach {
-                    Log.d(TAG, it.rawValue)
+                val barcode = barcodes.firstOrNull()
+                if ((barcode != null) && (barcode.rawValue != null)) {
+                    binding.cameraPreview.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
+                    cameraExecutor.shutdown()
+
+                    Toast.makeText(this, barcode.rawValue, Toast.LENGTH_LONG).show()
+                    finish()
                 }
             }
             .addOnFailureListener {
-                Log.e(TAG, it.message ?: "Exception")
+                Toast.makeText(this, "Error searching for a barcode", Toast.LENGTH_LONG).show()
+                finish()
             }.addOnCompleteListener {
                 imageProxy.close()
             }
-    }
-
-    companion object {
-        private val TAG = QrActivity::class.java.simpleName
-        private const val PERMISSION_CAMERA_REQUEST = 1
     }
 }
