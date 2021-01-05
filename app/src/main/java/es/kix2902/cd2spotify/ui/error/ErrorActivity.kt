@@ -28,5 +28,7 @@ class ErrorActivity : AppCompatActivity() {
             ERROR_READING -> binding.errorText.setText(R.string.error_reading)
             ERROR_INVALID -> finish()
         }
+
+        binding.close.setOnClickListener { finish() }
     }
 }
