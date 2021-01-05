@@ -2,6 +2,7 @@ package es.kix2902.cd2spotify.ui.qr
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
@@ -16,6 +17,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import es.kix2902.cd2spotify.databinding.ActivityQrBinding
+import es.kix2902.cd2spotify.ui.error.ErrorActivity
 import java.util.concurrent.Executors
 
 class QrActivity : AppCompatActivity() {
@@ -82,7 +84,9 @@ class QrActivity : AppCompatActivity() {
             if (isCameraPermissionGranted()) {
                 bindCameraUseCases()
             } else {
-                Toast.makeText(this, "Camera permission is mandatory", Toast.LENGTH_LONG).show()
+                val intent = Intent(this, ErrorActivity::class.java)
+                intent.putExtra(ErrorActivity.EXTRA_ERROR, ErrorActivity.ERROR_PERMISSION)
+                startActivity(intent)
                 finish()
             }
         }
@@ -91,7 +95,9 @@ class QrActivity : AppCompatActivity() {
 
     private fun bindCameraUseCases() {
         if (cameraProvider == null) {
-            Toast.makeText(this, "Error initializing camera", Toast.LENGTH_LONG).show()
+            val intent = Intent(this, ErrorActivity::class.java)
+            intent.putExtra(ErrorActivity.EXTRA_ERROR, ErrorActivity.ERROR_INITIALIZATION)
+            startActivity(intent)
             finish()
         }
 
@@ -119,7 +125,9 @@ class QrActivity : AppCompatActivity() {
             previewUseCase?.setSurfaceProvider(binding.cameraPreview.surfaceProvider)
 
         } catch (e: Exception) {
-            Toast.makeText(this, "Error initializing camera", Toast.LENGTH_LONG).show()
+            val intent = Intent(this, ErrorActivity::class.java)
+            intent.putExtra(ErrorActivity.EXTRA_ERROR, ErrorActivity.ERROR_INITIALIZATION)
+            startActivity(intent)
             finish()
         }
     }
@@ -141,7 +149,9 @@ class QrActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this, "Error searching for a barcode", Toast.LENGTH_LONG).show()
+                val intent = Intent(this, ErrorActivity::class.java)
+                intent.putExtra(ErrorActivity.EXTRA_ERROR, ErrorActivity.ERROR_READING)
+                startActivity(intent)
                 finish()
             }.addOnCompleteListener {
                 imageProxy.close()
