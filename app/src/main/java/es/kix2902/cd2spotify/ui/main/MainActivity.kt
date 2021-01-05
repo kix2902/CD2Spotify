@@ -18,5 +18,8 @@ class MainActivity : AppCompatActivity() {
         binding.readBarcode.setOnClickListener {
             startActivity(Intent(this, QrActivity::class.java))
         }
+        binding.showHistory.setOnClickListener {
+
+        }
     }
 }
