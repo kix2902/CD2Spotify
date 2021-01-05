@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="close">Close</string>
+
+    <string name="error_permission">Camera permission is mandatory to use this application. Review the system settings and allow CD2Spotify to use it.</string>
+    <string name="error_initialization">Error initializing camera. Close any other camera application you have open.</string>
+    <string name="error_reading">Impossible to read barcodes. Try again later and reboot your phone if it continues failing.</string>
+</resources>

@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.qr.QrActivity" />
+        <activity android:name=".ui.error.ErrorActivity" />
     </application>
 
 </manifest>
