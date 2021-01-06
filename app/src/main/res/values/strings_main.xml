@@ -2,4 +2,12 @@
 <resources>
     <string name="read_barcode">Read Barcode</string>
     <string name="show_history">Show history</string>
+    <string name="change_theme">Change theme</string>
+
+    <string name="theme_dialog_title">Select theme</string>
+
+    <string name="theme_never_entry">Light</string>
+    <string name="theme_battery_entry">Dark on battery low</string>
+    <string name="theme_system_entry">Follow system config</string>
+    <string name="theme_always_entry">Dark</string>
 </resources>
