@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import es.kix2902.cd2spotify.BuildConfig
 import es.kix2902.cd2spotify.R
 import es.kix2902.cd2spotify.databinding.ActivityMainBinding
 import es.kix2902.cd2spotify.ui.qr.QrActivity
