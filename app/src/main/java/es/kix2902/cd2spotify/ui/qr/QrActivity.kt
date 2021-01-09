@@ -18,6 +18,7 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import es.kix2902.cd2spotify.databinding.ActivityQrBinding
 import es.kix2902.cd2spotify.ui.error.ErrorActivity
+import es.kix2902.cd2spotify.ui.spotify.SpotifyActivity
 import java.util.concurrent.Executors
 
 class QrActivity : AppCompatActivity() {
@@ -144,7 +145,9 @@ class QrActivity : AppCompatActivity() {
                     binding.cameraPreview.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
                     cameraExecutor.shutdown()
 
-                    Toast.makeText(this, barcode.rawValue, Toast.LENGTH_LONG).show()
+                    val intent = Intent(this, SpotifyActivity::class.java)
+                    intent.putExtra(SpotifyActivity.EXTRA_BARCODE, barcode.rawValue!!)
+                    startActivity(intent)
                     finish()
                 }
             }

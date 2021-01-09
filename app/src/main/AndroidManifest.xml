@@ -25,6 +25,7 @@
         </activity>
         <activity android:name=".ui.qr.QrActivity" />
         <activity android:name=".ui.error.ErrorActivity" />
+        <activity android:name=".ui.spotify.SpotifyActivity" />
     </application>
 
 </manifest>
