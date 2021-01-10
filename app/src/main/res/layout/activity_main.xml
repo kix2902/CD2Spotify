@@ -1,69 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/read_barcode"
+    <LinearLayout
+        android:id="@+id/connect_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_margin="16dp"
-        android:layout_weight="4"
-        android:background="@drawable/main_button_background"
-        android:foreground="?attr/selectableItemBackground">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/connect_explain"
+            android:textAppearance="?attr/textAppearanceHeadline4" />
+
+        <Button
+            android:id="@+id/authorize"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/read_barcode"
-            android:textAppearance="?attr/textAppearanceHeadline4"
-            android:textColor="?attr/colorOnBackground"
-            app:drawableTint="?attr/colorOnBackground"
-            app:drawableTopCompat="@drawable/barcode_search" />
-    </FrameLayout>
+            android:layout_marginTop="32dp"
+            android:text="@string/connect_button" />
+    </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/show_history"
+    <LinearLayout
+        android:id="@+id/menu_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:layout_weight="3"
-        android:background="@drawable/main_button_background"
-        android:foreground="?attr/selectableItemBackground">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/show_history"
-            android:textAppearance="?attr/textAppearanceHeadline4"
-            android:textColor="?attr/colorOnBackground"
-            app:drawableTint="?attr/colorOnBackground"
-            app:drawableTopCompat="@drawable/history_list" />
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/read_barcode"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="16dp"
+            android:layout_weight="4"
+            android:background="@drawable/main_button_background"
+            android:foreground="?attr/selectableItemBackground">
 
-    <FrameLayout
-        android:id="@+id/change_theme"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_margin="16dp"
-        android:layout_weight="1"
-        android:background="@drawable/main_button_background"
-        android:foreground="?attr/selectableItemBackground">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/read_barcode"
+                android:textAppearance="?attr/textAppearanceHeadline4"
+                android:textColor="?attr/colorOnBackground"
+                app:drawableTint="?attr/colorOnBackground"
+                app:drawableTopCompat="@drawable/barcode_search" />
+        </FrameLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@string/change_theme"
-            android:textAppearance="?attr/textAppearanceHeadline5"
-            android:textColor="?attr/colorOnBackground" />
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/show_history"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="16dp"
+            android:layout_weight="3"
+            android:background="@drawable/main_button_background"
+            android:foreground="?attr/selectableItemBackground">
 
-</LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/show_history"
+                android:textAppearance="?attr/textAppearanceHeadline4"
+                android:textColor="?attr/colorOnBackground"
+                app:drawableTint="?attr/colorOnBackground"
+                app:drawableTopCompat="@drawable/history_list" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/change_theme"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="16dp"
+            android:layout_weight="1"
+            android:background="@drawable/main_button_background"
+            android:foreground="?attr/selectableItemBackground">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="@string/change_theme"
+                android:textAppearance="?attr/textAppearanceHeadline5"
+                android:textColor="?attr/colorOnBackground" />
+        </FrameLayout>
+    </LinearLayout>
+
+</FrameLayout>

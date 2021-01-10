@@ -10,4 +10,6 @@
     <string name="theme_battery_entry">Dark on battery low</string>
     <string name="theme_system_entry">Follow system config</string>
     <string name="theme_always_entry">Dark</string>
+    <string name="connect_explain">To use this app you must authorize it to connect to your Spotify account</string>
+    <string name="connect_button">Connect to Spotify</string>
 </resources>
