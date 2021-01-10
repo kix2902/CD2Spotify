@@ -15,7 +15,7 @@ object NetworkRepository {
     private const val MUSICBRAINZ_BASE_URL =
         "https://musicbrainz.org/ws/2/release/?fmt=json&query=barcode:"
 
-    val logging = HttpLoggingInterceptor().apply {
+    private val logging = HttpLoggingInterceptor().apply {
         if (BuildConfig.DEBUG) setLevel(HttpLoggingInterceptor.Level.BODY)
     }
     private val client = OkHttpClient.Builder()
