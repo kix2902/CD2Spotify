@@ -59,6 +59,8 @@ dependencies {
     implementation "androidx.room:room-ktx:2.2.6"
     kapt "androidx.room:room-compiler:2.2.6"
 
+    implementation "androidx.preference:preference-ktx:1.1.1"
+
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
     implementation("ru.gildor.coroutines:kotlin-coroutines-okhttp:1.0")
