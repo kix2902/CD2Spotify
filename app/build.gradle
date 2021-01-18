@@ -67,5 +67,5 @@ dependencies {
 
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
 
-    implementation "com.spotify.android:auth:1.2.3"
+    implementation 'net.openid:appauth:0.7.1'
 }
