@@ -9,6 +9,7 @@ class IsSpotifyInitialized(
 ) : UseCase<Boolean, UseCase.None>(scope) {
 
     override suspend fun run(params: None): Result {
-        return Result.Success(preferencesRepository.hasSpotifyToken())
+        val authState = preferencesRepository.loadSpotifyAuth()
+        return Result.Success(authState != null)
     }
 }
