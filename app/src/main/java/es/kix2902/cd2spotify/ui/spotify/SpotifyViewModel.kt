@@ -8,7 +8,7 @@ import es.kix2902.cd2spotify.data.DatabaseRepository
 import es.kix2902.cd2spotify.data.NetworkRepository
 import es.kix2902.cd2spotify.data.models.Release
 import es.kix2902.cd2spotify.domain.FindRelease
-import es.kix2902.cd2spotify.domain.SearchAlbum
+import es.kix2902.cd2spotify.domain.FindSpotifyAlbum
 import es.kix2902.cd2spotify.domain.UseCase
 
 class SpotifyViewModel(application: Application) : AndroidViewModel(application) {
@@ -16,15 +16,15 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
     private val dbRepository = DatabaseRepository.getInstance(application.applicationContext)
     private val networkRepository = NetworkRepository.getInstance(application.applicationContext)
 
-    private val getRelease = FindRelease(viewModelScope, dbRepository, networkRepository)
-    private val searchAlbum = SearchAlbum(viewModelScope, networkRepository)
+    private val findRelease = FindRelease(viewModelScope, dbRepository, networkRepository)
+    private val findSpotifyAlbum = FindSpotifyAlbum(viewModelScope, networkRepository)
 
     fun findBarcode(barcode: String) {
-        getRelease.invoke(barcode) {
+        findRelease.invoke(barcode) {
             when (it) {
                 is UseCase.Result.Success<*> -> {
                     val release = it.data as Release
-                    searchSpotify(release)
+                    findSpotify(release)
 
                     Toast.makeText(
                         getApplication(),
@@ -39,8 +39,8 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private fun searchSpotify(release: Release) {
-        searchAlbum.invoke(release) {
+    private fun findSpotify(release: Release) {
+        findSpotifyAlbum.invoke(release) {
         }
     }
 }
