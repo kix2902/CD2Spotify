@@ -9,4 +9,7 @@ interface ReleaseDao : BaseDao<Release> {
 
     @Query("SELECT * FROM `releases` WHERE barcode LIKE :barcode")
     suspend fun findByBarcode(barcode: String): Release?
+
+    @Query("SELECT * FROM `releases`")
+    suspend fun findAll(): List<Release>
 }

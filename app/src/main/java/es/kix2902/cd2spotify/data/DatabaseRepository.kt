@@ -19,4 +19,8 @@ class DatabaseRepository private constructor(context: Context) {
     suspend fun searchBarcode(barcode: String): Release? {
         return db.releaseDao().findByBarcode(barcode)
     }
+
+    suspend fun getAllReleases(): List<Release> {
+        return db.releaseDao().findAll()
+    }
 }
