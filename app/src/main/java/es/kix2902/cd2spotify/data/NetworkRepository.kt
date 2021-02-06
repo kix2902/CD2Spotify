@@ -42,12 +42,12 @@ object NetworkRepository {
                 val json = JSONObject(response.body!!.string())
                 val releases = json.optJSONArray("releases")
                 if ((releases == null) || (releases.length() == 0)) {
-                    return@withContext null
+                    return@withContext Release(barcode)
                 }
 
-                val release0 = releases.getJSONObject(0)
-                val title = release0.optString("title")
-                val artists = release0.optJSONArray("artist-credit")
+                val album = releases.getJSONObject(0)
+                val title = album.optString("title")
+                val artists = album.optJSONArray("artist-credit")
                 val artist = artists?.optJSONObject(0)?.optString("name") ?: ""
 
                 return@withContext Release(barcode, title, artist)
