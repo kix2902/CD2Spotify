@@ -6,6 +6,10 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "releases")
 data class Release(
     @PrimaryKey val barcode: String,
-    val title: String,
-    val author: String
+    val title: String = "",
+    val author: String = ""
 )
+
+fun Release.hasInfo(): Boolean {
+    return title.isNotEmpty() && author.isNotEmpty()
+}

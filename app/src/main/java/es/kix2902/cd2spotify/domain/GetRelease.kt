@@ -3,6 +3,7 @@ package es.kix2902.cd2spotify.domain
 import es.kix2902.cd2spotify.data.DatabaseRepository
 import es.kix2902.cd2spotify.data.NetworkRepository
 import es.kix2902.cd2spotify.data.models.Release
+import es.kix2902.cd2spotify.data.models.hasInfo
 import kotlinx.coroutines.CoroutineScope
 
 class GetRelease(
@@ -21,7 +22,9 @@ class GetRelease(
             release = networkRepository.searchReleaseByBarcode(params)
 
             if (release != null) {
-                dbRepository.insertRelease(release)
+                if (release.hasInfo()) {
+                    dbRepository.insertRelease(release)
+                }
 
                 return Result.Success(release)
             } else {
