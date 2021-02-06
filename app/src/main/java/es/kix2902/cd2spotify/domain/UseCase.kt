@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-abstract class UseCase<out Type, in Params>(private val scope: CoroutineScope) where Type : Any {
+abstract class UseCase<out Type, in Params>(private val scope: CoroutineScope) where Type : Any? {
 
     abstract suspend fun run(params: Params): Result
 
