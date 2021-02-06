@@ -30,7 +30,7 @@ object NetworkRepository {
         }
         .build()
 
-    suspend fun searchReleaseByBarcode(barcode: String): Release? {
+    suspend fun findReleaseByBarcode(barcode: String): Release? {
         val request = Request.Builder()
             .url(MUSICBRAINZ_BASE_URL + barcode)
             .build()

@@ -6,7 +6,7 @@ import es.kix2902.cd2spotify.data.models.Release
 import es.kix2902.cd2spotify.data.models.hasInfo
 import kotlinx.coroutines.CoroutineScope
 
-class GetRelease(
+class FindRelease(
     scope: CoroutineScope,
     private val dbRepository: DatabaseRepository,
     private val networkRepository: NetworkRepository
@@ -19,7 +19,7 @@ class GetRelease(
             return Result.Success(release)
 
         } else {
-            release = networkRepository.searchReleaseByBarcode(params)
+            release = networkRepository.findReleaseByBarcode(params)
 
             if (release != null) {
                 if (release.hasInfo()) {
