@@ -25,12 +25,6 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
                 is UseCase.Result.Success<*> -> {
                     val release = it.data as Release
                     findSpotify(release)
-
-                    Toast.makeText(
-                        getApplication(),
-                        "${release.author} - ${release.title}",
-                        Toast.LENGTH_LONG
-                    ).show()
                 }
                 is UseCase.Result.Error -> {
                     Toast.makeText(getApplication(), "Error", Toast.LENGTH_LONG).show()
@@ -41,6 +35,7 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
 
     private fun findSpotify(release: Release) {
         findSpotifyAlbum.invoke(release) {
+
         }
     }
 }
