@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import es.kix2902.cd2spotify.R
 import es.kix2902.cd2spotify.databinding.ActivityMainBinding
+import es.kix2902.cd2spotify.ui.history.HistoryActivity
 import es.kix2902.cd2spotify.ui.qr.QrActivity
 import net.openid.appauth.AuthorizationService
 
@@ -49,7 +50,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, QrActivity::class.java))
         }
         binding.showHistory.setOnClickListener {
-
+            startActivity(Intent(this, HistoryActivity::class.java))
         }
         binding.changeTheme.setOnClickListener {
             MaterialAlertDialogBuilder(this)

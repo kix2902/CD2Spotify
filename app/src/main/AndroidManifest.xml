@@ -26,6 +26,7 @@
         <activity android:name=".ui.qr.QrActivity" />
         <activity android:name=".ui.error.ErrorActivity" />
         <activity android:name=".ui.spotify.SpotifyActivity" />
+        <activity android:name=".ui.history.HistoryActivity" />
         <activity
             android:name="net.openid.appauth.RedirectUriReceiverActivity"
             tools:node="replace">
