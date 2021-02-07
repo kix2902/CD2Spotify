@@ -1,7 +1,6 @@
 package es.kix2902.cd2spotify.ui.spotify
 
 import android.app.Application
-import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import es.kix2902.cd2spotify.data.DatabaseRepository
@@ -27,7 +26,7 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
                     findSpotify(release)
                 }
                 is UseCase.Result.Error -> {
-                    Toast.makeText(getApplication(), "Error", Toast.LENGTH_LONG).show()
+                    //TODO
                 }
             }
         }
@@ -35,7 +34,14 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
 
     private fun findSpotify(release: Release) {
         findSpotifyAlbum.invoke(release) {
+            when (it) {
+                is UseCase.Result.Success<*> -> {
 
+                }
+                UseCase.Result.Error -> {
+                    //TODO
+                }
+            }
         }
     }
 }
