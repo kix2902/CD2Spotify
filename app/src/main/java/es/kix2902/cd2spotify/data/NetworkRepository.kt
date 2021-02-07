@@ -1,6 +1,7 @@
 package es.kix2902.cd2spotify.data
 
 import android.content.Context
+import android.webkit.URLUtil
 import es.kix2902.cd2spotify.BuildConfig
 import es.kix2902.cd2spotify.data.models.Release
 import es.kix2902.cd2spotify.data.models.Spotify
@@ -58,20 +59,18 @@ class NetworkRepository private constructor(context: Context) {
         val response = client.newCall(request).await()
 
         if (response.isSuccessful) {
-            return withContext(Dispatchers.IO) {
-                val json = JSONObject(response.body!!.string())
-                val releases = json.optJSONArray("releases")
-                if ((releases == null) || (releases.length() == 0)) {
-                    return@withContext Release(barcode)
-                }
-
-                val album = releases.getJSONObject(0)
-                val title = album.optString("title")
-                val artists = album.optJSONArray("artist-credit")
-                val artist = artists?.optJSONObject(0)?.optString("name") ?: ""
-
-                return@withContext Release(barcode, title, artist)
+            val json = withContext(Dispatchers.IO) { JSONObject(response.body!!.string()) }
+            val releases = json.optJSONArray("releases")
+            if ((releases == null) || (releases.length() == 0)) {
+                return Release(barcode)
             }
+
+            val album = releases.optJSONObject(0)
+            val title = album.optString("title")
+            val artists = album.optJSONArray("artist-credit")
+            val artist = artists?.optJSONObject(0)?.optString("name") ?: ""
+
+            return Release(barcode, title, artist)
 
         } else {
             return null
@@ -86,10 +85,8 @@ class NetworkRepository private constructor(context: Context) {
         val response = spotifyClient.newCall(request).await()
 
         if (response.isSuccessful) {
-            return withContext(Dispatchers.IO) {
-                val json = JSONObject(response.body!!.string())
-                return@withContext parseSpotifyResponse(json)
-            }
+            val json = withContext(Dispatchers.IO) { JSONObject(response.body!!.string()) }
+            return parseSpotifyResponse(json)
 
         } else {
             return null
@@ -104,10 +101,8 @@ class NetworkRepository private constructor(context: Context) {
         val response = spotifyClient.newCall(request).await()
 
         if (response.isSuccessful) {
-            return withContext(Dispatchers.IO) {
-                val json = JSONObject(response.body!!.string())
-                return@withContext parseSpotifyResponse(json)
-            }
+            val json = withContext(Dispatchers.IO) { JSONObject(response.body!!.string()) }
+            return parseSpotifyResponse(json)
 
         } else {
             return null
@@ -122,14 +117,48 @@ class NetworkRepository private constructor(context: Context) {
         val response = spotifyClient.newCall(request).await()
 
         if (response.isSuccessful) {
-            return withContext(Dispatchers.IO) {
-                val json = JSONObject(response.body!!.string())
-                return@withContext parseSpotifyResponse(json)
-            }
+            val json = withContext(Dispatchers.IO) { JSONObject(response.body!!.string()) }
+            return parseSpotifyResponse(json)
 
         } else {
             return null
         }
+    }
+
+    suspend fun findSpotifyTracks(albumId: String): List<Spotify.Track> {
+        var url: String? = "https://api.spotify.com/v1/albums/$albumId/tracks"
+
+        val tracks = arrayListOf<Spotify.Track>()
+        do {
+            val request = Request.Builder()
+                .url(url!!)
+                .build()
+
+            val response = spotifyClient.newCall(request).await()
+
+            if (response.isSuccessful) {
+                val json = withContext(Dispatchers.IO) { JSONObject(response.body!!.string()) }
+                url = json.optString("next")
+
+                val items = json.optJSONArray("items")
+                if (items != null) {
+                    for (i in 0 until items.length()) {
+                        val trackData = items.optJSONObject(i)
+                        val id = trackData.optString("id")
+                        val title = trackData.optString("name")
+                        val discNumber = trackData.optInt("disc_number")
+                        val trackNumber = trackData.optInt("track_number")
+
+                        tracks.add(Spotify.Track(id, title, discNumber, trackNumber))
+                    }
+                }
+
+            } else {
+                url = null
+            }
+        } while (URLUtil.isValidUrl(url))
+
+        return tracks
     }
 
     private suspend fun parseSpotifyResponse(json: JSONObject): Spotify.Album? {
