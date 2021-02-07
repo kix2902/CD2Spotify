@@ -6,11 +6,13 @@ class Spotify {
         val artist: String?,
         val title: String?,
         val image: String?,
-        val tracks: List<Track> = arrayListOf()
+        var tracks: List<Track> = arrayListOf()
     )
 
     data class Track(
         val id: String,
-        val title: String?
+        val title: String?,
+        val discNumber: Int,
+        val trackNumber: Int
     )
 }
