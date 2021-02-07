@@ -25,8 +25,8 @@ class FindRelease(
                 if (release.hasInfo()) {
                     dbRepository.insertRelease(release)
                 }
-
                 return Result.Success(release)
+
             } else {
                 return Result.Error
             }
