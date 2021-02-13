@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import es.kix2902.cd2spotify.data.models.Release
+import es.kix2902.cd2spotify.data.models.Musicbrainz
 import es.kix2902.cd2spotify.databinding.ActivityHistoryBinding
 import es.kix2902.cd2spotify.ui.spotify.SpotifyActivity
 
@@ -23,9 +23,9 @@ class HistoryActivity : AppCompatActivity() {
 
         binding.recycler.adapter = adapter
         adapter.setOnClickListener(object : HistoryAdapter.OnClickListener {
-            override fun onClick(item: Release) {
+            override fun onClick(item: Musicbrainz.ReleaseWithArtists) {
                 val intent = Intent(this@HistoryActivity, SpotifyActivity::class.java)
-                intent.putExtra(SpotifyActivity.EXTRA_BARCODE, item.barcode)
+                intent.putExtra(SpotifyActivity.EXTRA_BARCODE, item.release.barcode)
                 startActivity(intent)
             }
         })

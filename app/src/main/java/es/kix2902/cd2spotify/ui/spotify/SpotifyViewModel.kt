@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import es.kix2902.cd2spotify.data.DatabaseRepository
 import es.kix2902.cd2spotify.data.NetworkRepository
-import es.kix2902.cd2spotify.data.models.Release
+import es.kix2902.cd2spotify.data.models.Musicbrainz
 import es.kix2902.cd2spotify.domain.FindRelease
 import es.kix2902.cd2spotify.domain.FindSpotifyAlbum
 import es.kix2902.cd2spotify.domain.UseCase
@@ -22,7 +22,7 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
         findRelease.invoke(barcode) {
             when (it) {
                 is UseCase.Result.Success<*> -> {
-                    val release = it.data as Release
+                    val release = it.data as Musicbrainz.ReleaseWithArtists
                     findSpotify(release)
                 }
                 is UseCase.Result.Error -> {
@@ -32,7 +32,7 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private fun findSpotify(release: Release) {
+    private fun findSpotify(release: Musicbrainz.ReleaseWithArtists) {
         findSpotifyAlbum.invoke(release) {
             when (it) {
                 is UseCase.Result.Success<*> -> {

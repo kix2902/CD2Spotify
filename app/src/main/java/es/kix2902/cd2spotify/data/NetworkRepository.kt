@@ -3,7 +3,7 @@ package es.kix2902.cd2spotify.data
 import android.content.Context
 import android.webkit.URLUtil
 import es.kix2902.cd2spotify.BuildConfig
-import es.kix2902.cd2spotify.data.models.Release
+import es.kix2902.cd2spotify.data.models.Musicbrainz
 import es.kix2902.cd2spotify.data.models.Spotify
 import es.kix2902.cd2spotify.domain.SaveSpotifyAuth
 import es.kix2902.cd2spotify.helpers.SingletonHolder
@@ -20,6 +20,7 @@ import org.json.JSONObject
 import ru.gildor.coroutines.okhttp.await
 
 class NetworkRepository private constructor(context: Context) {
+
     companion object : SingletonHolder<NetworkRepository, Context>(::NetworkRepository) {
         private const val MUSICBRAINZ_BASE_URL =
             "https://musicbrainz.org/ws/2/release/?fmt=json&query=barcode:"
@@ -34,13 +35,18 @@ class NetworkRepository private constructor(context: Context) {
             chain.proceed(
                 chain.request()
                     .newBuilder()
-                    .header("User-Agent", "CD2Spotify/0.1 ( ismael.kix2902+cd2spotify@gmail.com )")
+                    .header(
+                        "User-Agent",
+                        "CD2Spotify/${BuildConfig.VERSION_NAME} ( ismael.kix2902+cd2spotify@gmail.com )"
+                    )
                     .build()
             )
         }
         .build()
 
     private val preferencesRepository = PreferencesRepository.getInstance(context)
+    private val databaseRepository = DatabaseRepository.getInstance(context)
+
     private val authService: AuthorizationService by lazy { AuthorizationService(context) }
     private val saveSpotifyAuth = SaveSpotifyAuth(CoroutineScope(Job()), preferencesRepository)
 
@@ -51,7 +57,7 @@ class NetworkRepository private constructor(context: Context) {
         )
         .build()
 
-    suspend fun findReleaseByBarcode(barcode: String): Release? {
+    suspend fun findReleaseByBarcode(barcode: String): Boolean {
         val request = Request.Builder()
             .url(MUSICBRAINZ_BASE_URL + barcode)
             .build()
@@ -61,25 +67,41 @@ class NetworkRepository private constructor(context: Context) {
         if (response.isSuccessful) {
             val json = withContext(Dispatchers.IO) { JSONObject(response.body!!.string()) }
             val releases = json.optJSONArray("releases")
-            if ((releases == null) || (releases.length() == 0)) {
-                return Release(barcode)
+            if ((releases != null) && (releases.length() > 0)) {
+                val releaseData = releases.optJSONObject(0)
+                val title = releaseData.optString("title")
+                if (title.isNotEmpty()) {
+                    val release = Musicbrainz.Release(barcode, title)
+                    databaseRepository.insertRelease(release)
+                }
+
+                val artistsData = releaseData.optJSONArray("artist-credit")
+                if (artistsData != null) {
+                    for (i in 0 until artistsData.length()) {
+                        val artistData = artistsData.optJSONObject(i).optJSONObject("artist")
+                        val id = artistData?.optString("id")
+                        val name = artistData?.optString("name")
+
+                        if ((id != null) && (name != null)) {
+                            val artist = Musicbrainz.Artist(id, name)
+                            databaseRepository.insertArtist(artist)
+
+                            val releaseArtist = Musicbrainz.ReleaseArtist(barcode, id)
+                            databaseRepository.insertReleaseArtist(releaseArtist)
+                        }
+                    }
+                }
             }
-
-            val album = releases.optJSONObject(0)
-            val title = album.optString("title")
-            val artists = album.optJSONArray("artist-credit")
-            val artist = artists?.optJSONObject(0)?.optString("name") ?: ""
-
-            return Release(barcode, title, artist)
+            return true
 
         } else {
-            return null
+            return false
         }
     }
 
-    suspend fun findSpotifyByRelease(release: Release): Spotify.Album? {
+    suspend fun findSpotifyByRelease(release: Musicbrainz.ReleaseWithArtists): Spotify.Album? {
         val request = Request.Builder()
-            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=album:${release.title}%20artist:${release.author}")
+            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=album:${release.release.title}%20artist:${release.artists[0].name}")
             .build()
 
         val response = spotifyClient.newCall(request).await()
@@ -93,9 +115,9 @@ class NetworkRepository private constructor(context: Context) {
         }
     }
 
-    suspend fun findSpotifyByQuery(release: Release): Spotify.Album? {
+    suspend fun findSpotifyByQuery(release: Musicbrainz.ReleaseWithArtists): Spotify.Album? {
         val request = Request.Builder()
-            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=${release.title}%20${release.author}")
+            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=${release.release.title}%20${release.artists[0].name}")
             .build()
 
         val response = spotifyClient.newCall(request).await()
@@ -109,9 +131,9 @@ class NetworkRepository private constructor(context: Context) {
         }
     }
 
-    suspend fun findSpotifyByBarcode(release: Release): Spotify.Album? {
+    suspend fun findSpotifyByBarcode(release: Musicbrainz.ReleaseWithArtists): Spotify.Album? {
         val request = Request.Builder()
-            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=upn:${release.barcode}")
+            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=upn:${release.release.barcode}")
             .build()
 
         val response = spotifyClient.newCall(request).await()

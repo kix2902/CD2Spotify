@@ -2,15 +2,14 @@ package es.kix2902.cd2spotify.domain
 
 import es.kix2902.cd2spotify.data.DatabaseRepository
 import es.kix2902.cd2spotify.data.NetworkRepository
-import es.kix2902.cd2spotify.data.models.Release
-import es.kix2902.cd2spotify.data.models.hasInfo
+import es.kix2902.cd2spotify.data.models.Musicbrainz
 import kotlinx.coroutines.CoroutineScope
 
 class FindRelease(
     scope: CoroutineScope,
     private val dbRepository: DatabaseRepository,
     private val networkRepository: NetworkRepository
-) : UseCase<Release, String>(scope) {
+) : UseCase<Musicbrainz.ReleaseWithArtists, String>(scope) {
 
     override suspend fun run(params: String): Result {
         var release = dbRepository.searchBarcode(params)
@@ -19,13 +18,16 @@ class FindRelease(
             return Result.Success(release)
 
         } else {
-            release = networkRepository.findReleaseByBarcode(params)
+            val success = networkRepository.findReleaseByBarcode(params)
 
-            if (release != null) {
-                if (release.hasInfo()) {
-                    dbRepository.insertRelease(release)
+            if (success) {
+                release = dbRepository.searchBarcode(params)
+
+                return if (release != null) {
+                    Result.Success(release)
+                } else {
+                    Result.Error
                 }
-                return Result.Success(release)
 
             } else {
                 return Result.Error
