@@ -184,34 +184,41 @@ class NetworkRepository private constructor(context: Context) {
     }
 
     private suspend fun parseSpotifyResponse(json: JSONObject): Spotify.Album? {
-        val albums = json.optJSONObject("albums")
-        if (albums == null) {
+        val albumsData = json.optJSONObject("albums")
+        if (albumsData == null) {
             return null
         }
 
-        val items = albums.optJSONArray("items")
-        if ((items == null) || (items.length() == 0)) {
+        val itemsData = albumsData.optJSONArray("items")
+        if ((itemsData == null) || (itemsData.length() == 0)) {
             return null
         }
 
-        val item = items.optJSONObject(0)
-        val id = item.optString("id")
-        val title = item.optString("name")
-        var artist: String? = null
+        val albumData = itemsData.optJSONObject(0)
+        val id = albumData.optString("id")
+        val title = albumData.optString("name")
+
+        val artists = mutableListOf<Spotify.Artist>()
+        val artistsData = albumData.optJSONArray("artists")
+        if (artistsData != null) {
+            for (i in 0 until artistsData.length()) {
+                val artistData = artistsData.optJSONObject(i)
+                val artistId = artistData?.optString("id")
+                val name = artistData?.optString("name")
+
+                if ((artistId != null) && (name != null)) {
+                    artists.add(Spotify.Artist(artistId, name))
+                }
+            }
+        }
+
         var image: String? = null
-
-        val artists = item.optJSONArray("artists")
-        if ((artists != null) && (artists.length() > 0)) {
-            val artistData = artists.optJSONObject(0)
-            artist = artistData.optString("name")
+        val imagesData = albumData.optJSONArray("images")
+        if ((imagesData != null) && (imagesData.length() > 0)) {
+            val imageData = imagesData.optJSONObject(0)
+            image = imageData.optString("url")
         }
 
-        val images = item.optJSONArray("images")
-        if ((images != null) && (images.length() > 0)) {
-            val imagesData = images.optJSONObject(0)
-            image = imagesData.optString("url")
-        }
-
-        return Spotify.Album(id, artist, title, image)
+        return Spotify.Album(id, artists, title, image)
     }
 }
