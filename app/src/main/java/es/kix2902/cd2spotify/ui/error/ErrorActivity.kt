@@ -14,6 +14,8 @@ class ErrorActivity : AppCompatActivity() {
         const val ERROR_INITIALIZATION = 1
         const val ERROR_READING = 2
         const val ERROR_SPOTIFY_AUTH = 3
+        const val ERROR_RELEASE_NOT_FOUND = 4
+        const val ERROR_SPOTIFY_NOT_FOUND = 5
     }
 
     private lateinit var binding: ActivityErrorBinding
@@ -28,6 +30,8 @@ class ErrorActivity : AppCompatActivity() {
             ERROR_INITIALIZATION -> binding.errorText.setText(R.string.error_initialization)
             ERROR_READING -> binding.errorText.setText(R.string.error_reading)
             ERROR_SPOTIFY_AUTH -> binding.errorText.setText(R.string.error_spotify_auth)
+            ERROR_RELEASE_NOT_FOUND -> binding.errorText.setText(R.string.error_release_not_found)
+            ERROR_SPOTIFY_NOT_FOUND -> binding.errorText.setText(R.string.error_spotify_not_found)
             ERROR_INVALID -> finish()
         }
 
