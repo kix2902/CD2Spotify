@@ -1,6 +1,5 @@
 package es.kix2902.cd2spotify.ui.spotify
 
-import SingleLiveEvent
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -11,6 +10,7 @@ import es.kix2902.cd2spotify.data.models.Musicbrainz
 import es.kix2902.cd2spotify.domain.FindRelease
 import es.kix2902.cd2spotify.domain.FindSpotifyAlbum
 import es.kix2902.cd2spotify.domain.UseCase
+import es.kix2902.cd2spotify.helpers.SingleLiveEvent
 import es.kix2902.cd2spotify.ui.error.ErrorActivity
 
 class SpotifyViewModel(application: Application) : AndroidViewModel(application) {
