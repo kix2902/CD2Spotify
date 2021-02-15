@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         binding.changeTheme.setOnClickListener {
             MaterialAlertDialogBuilder(this)
                 .setTitle(R.string.theme_dialog_title)
-                .setItems(R.array.theme_entries) { dialog, which ->
+                .setItems(R.array.theme_entries) { _, which ->
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         when (which) {
                             0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
