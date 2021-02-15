@@ -6,14 +6,18 @@ class Musicbrainz {
     @Entity
     data class Release(
         @PrimaryKey val barcode: String,
-        var title: String? = null
-    )
+        var title: String
+    ) {
+        override fun toString() = title
+    }
 
     @Entity
     data class Artist(
         @PrimaryKey val id: String,
         val name: String
-    )
+    ) {
+        override fun toString() = name
+    }
 
     @Entity(primaryKeys = ["releaseBarcode", "artistId"])
     data class ReleaseArtist(
