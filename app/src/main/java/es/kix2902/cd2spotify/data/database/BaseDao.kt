@@ -2,6 +2,7 @@ package es.kix2902.cd2spotify.data.database
 
 import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Update
 
 interface BaseDao<T> {
@@ -11,7 +12,7 @@ interface BaseDao<T> {
      *
      * @param obj the object to be inserted.
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(obj: T)
 
     /**
@@ -19,7 +20,7 @@ interface BaseDao<T> {
      *
      * @param obj the objects to be inserted.
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(vararg obj: T)
 
     /**
@@ -27,7 +28,7 @@ interface BaseDao<T> {
      *
      * @param obj the object to be updated
      */
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun update(obj: T)
 
     /**
