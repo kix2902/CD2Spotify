@@ -6,7 +6,7 @@ import es.kix2902.cd2spotify.data.models.Musicbrainz
 
 @Database(
     entities = [Musicbrainz.Release::class, Musicbrainz.Artist::class, Musicbrainz.ReleaseArtist::class],
-    version = 3
+    version = 4
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun releaseDao(): ReleaseDao

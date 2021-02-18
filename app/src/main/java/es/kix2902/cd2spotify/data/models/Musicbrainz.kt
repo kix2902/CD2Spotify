@@ -6,9 +6,10 @@ class Musicbrainz {
     @Entity
     data class Release(
         @PrimaryKey val barcode: String,
-        var title: String
+        var title: String? = null,
+        var year: String? = null
     ) {
-        override fun toString() = title
+        override fun toString() = title ?: ""
     }
 
     @Entity
