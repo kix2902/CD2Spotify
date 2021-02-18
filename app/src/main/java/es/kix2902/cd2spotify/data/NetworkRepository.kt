@@ -72,7 +72,7 @@ class NetworkRepository private constructor(context: Context) {
                 val release = Musicbrainz.Release(barcode)
 
                 val title = releaseData.optString("title")
-                if (title.isNotEmpty()) {
+                if (!title.isNullOrEmpty()) {
                     release.title = title
                 }
 
@@ -112,9 +112,43 @@ class NetworkRepository private constructor(context: Context) {
         }
     }
 
-    suspend fun findSpotifyByRelease(release: Musicbrainz.ReleaseWithArtists): Spotify.Album? {
+    suspend fun findSpotifyByTitleAndYear(release: Musicbrainz.ReleaseWithArtists): Spotify.Album? {
         val request = Request.Builder()
-            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=album:${release.release.title}%20artist:${release.artists[0].name}")
+            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=album:${release.release.title}%20year:${release.release.year}")
+            .build()
+
+        val response = spotifyClient.newCall(request).await()
+
+        if (response.isSuccessful) {
+            val json = withContext(Dispatchers.IO) { JSONObject(response.body!!.string()) }
+            return parseSpotifyResponse(json)
+
+        } else {
+            return null
+        }
+    }
+
+    suspend fun findSpotifyByTitleAndArtists(release: Musicbrainz.ReleaseWithArtists): Spotify.Album? {
+        val artists = release.artists.joinToString("")
+
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=album:${release.release.title}%20artist:$artists")
+            .build()
+
+        val response = spotifyClient.newCall(request).await()
+
+        if (response.isSuccessful) {
+            val json = withContext(Dispatchers.IO) { JSONObject(response.body!!.string()) }
+            return parseSpotifyResponse(json)
+
+        } else {
+            return null
+        }
+    }
+
+    suspend fun findSpotifyByTitle(release: Musicbrainz.ReleaseWithArtists): Spotify.Album? {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=album:\"${release.release.title}\"")
             .build()
 
         val response = spotifyClient.newCall(request).await()
@@ -129,24 +163,10 @@ class NetworkRepository private constructor(context: Context) {
     }
 
     suspend fun findSpotifyByQuery(release: Musicbrainz.ReleaseWithArtists): Spotify.Album? {
+        val artists = release.artists.joinToString("")
+
         val request = Request.Builder()
-            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=${release.release.title}%20${release.artists[0].name}")
-            .build()
-
-        val response = spotifyClient.newCall(request).await()
-
-        if (response.isSuccessful) {
-            val json = withContext(Dispatchers.IO) { JSONObject(response.body!!.string()) }
-            return parseSpotifyResponse(json)
-
-        } else {
-            return null
-        }
-    }
-
-    suspend fun findSpotifyByBarcode(release: Musicbrainz.ReleaseWithArtists): Spotify.Album? {
-        val request = Request.Builder()
-            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=upn:${release.release.barcode}")
+            .url("https://api.spotify.com/v1/search?type=album&limit=1&q=${release.release.title}%20$artists")
             .build()
 
         val response = spotifyClient.newCall(request).await()
