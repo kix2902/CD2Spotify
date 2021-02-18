@@ -69,9 +69,22 @@ class NetworkRepository private constructor(context: Context) {
             val releases = json.optJSONArray("releases")
             if ((releases != null) && (releases.length() > 0)) {
                 val releaseData = releases.optJSONObject(0)
+                val release = Musicbrainz.Release(barcode)
+
                 val title = releaseData.optString("title")
                 if (title.isNotEmpty()) {
-                    val release = Musicbrainz.Release(barcode, title)
+                    release.title = title
+                }
+
+                var date = releaseData.optString("date")
+                if (date.isNotEmpty()) {
+                    if (date.length > 4) {
+                        date = date.split("-")[0]
+                    }
+                    release.year = date
+                }
+
+                if ((!release.title.isNullOrEmpty()) && (!release.year.isNullOrEmpty())) {
                     databaseRepository.insertRelease(release)
                 }
 
@@ -183,7 +196,7 @@ class NetworkRepository private constructor(context: Context) {
         return tracks
     }
 
-    private suspend fun parseSpotifyResponse(json: JSONObject): Spotify.Album? {
+    private fun parseSpotifyResponse(json: JSONObject): Spotify.Album? {
         val albumsData = json.optJSONObject("albums")
         if (albumsData == null) {
             return null
