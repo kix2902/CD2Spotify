@@ -84,7 +84,7 @@ class NetworkRepository private constructor(context: Context) {
                     release.year = date
                 }
 
-                if ((!release.title.isNullOrEmpty()) && (!release.year.isNullOrEmpty())) {
+                if (!release.title.isNullOrEmpty()) {
                     databaseRepository.insertRelease(release)
                 }
 
