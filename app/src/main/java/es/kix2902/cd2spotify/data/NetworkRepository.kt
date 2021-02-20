@@ -16,6 +16,7 @@ import net.openid.appauth.AuthorizationService
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.logging.HttpLoggingInterceptor
+import org.json.JSONArray
 import org.json.JSONObject
 import ru.gildor.coroutines.okhttp.await
 
@@ -203,8 +204,9 @@ class NetworkRepository private constructor(context: Context) {
                         val title = trackData.optString("name")
                         val discNumber = trackData.optInt("disc_number")
                         val trackNumber = trackData.optInt("track_number")
+                        val favorite = isFavoriteTrack(id)
 
-                        tracks.add(Spotify.Track(id, title, discNumber, trackNumber))
+                        tracks.add(Spotify.Track(id, title, discNumber, trackNumber, favorite))
                     }
                 }
 
@@ -216,7 +218,7 @@ class NetworkRepository private constructor(context: Context) {
         return tracks
     }
 
-    private fun parseSpotifyResponse(json: JSONObject): Spotify.Album? {
+    private suspend fun parseSpotifyResponse(json: JSONObject): Spotify.Album? {
         val albumsData = json.optJSONObject("albums")
         if (albumsData == null) {
             return null
@@ -229,6 +231,7 @@ class NetworkRepository private constructor(context: Context) {
 
         val albumData = itemsData.optJSONObject(0)
         val id = albumData.optString("id")
+        val favorite = isFavoriteAlbum(id)
         val title = albumData.optString("name")
 
         val artists = mutableListOf<Spotify.Artist>()
@@ -252,6 +255,38 @@ class NetworkRepository private constructor(context: Context) {
             image = imageData.optString("url")
         }
 
-        return Spotify.Album(id, artists, title, image)
+        return Spotify.Album(id, artists, title, image, favorite)
+    }
+
+    private suspend fun isFavoriteAlbum(id: String): Boolean {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/me/albums/contains?ids=$id")
+            .build()
+
+        val response = spotifyClient.newCall(request).await()
+
+        if (response.isSuccessful) {
+            val json = withContext(Dispatchers.IO) { JSONArray(response.body!!.string()) }
+            return json.optBoolean(0)
+
+        } else {
+            return false
+        }
+    }
+
+    private suspend fun isFavoriteTrack(id: String): Boolean {
+        val request = Request.Builder()
+            .url("https://api.spotify.com/v1/me/tracks/contains?ids=$id")
+            .build()
+
+        val response = spotifyClient.newCall(request).await()
+
+        if (response.isSuccessful) {
+            val json = withContext(Dispatchers.IO) { JSONArray(response.body!!.string()) }
+            return json.optBoolean(0)
+
+        } else {
+            return false
+        }
     }
 }
