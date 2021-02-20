@@ -24,7 +24,7 @@ class HistoryAdapter : RecyclerView.Adapter<HistoryAdapter.Holder>() {
         val release = items[position]
 
         holder.binding.album.text = release.release.title
-        holder.binding.artist.text = release.artists[0].name
+        holder.binding.artist.text = release.artists.joinToString()
         holder.binding.barcode.text = release.release.barcode
     }
 
