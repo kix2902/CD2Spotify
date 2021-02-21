@@ -3,10 +3,12 @@ package es.kix2902.cd2spotify.ui.spotify
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import es.kix2902.cd2spotify.data.DatabaseRepository
 import es.kix2902.cd2spotify.data.NetworkRepository
 import es.kix2902.cd2spotify.data.models.Musicbrainz
+import es.kix2902.cd2spotify.data.models.Spotify
 import es.kix2902.cd2spotify.domain.FindRelease
 import es.kix2902.cd2spotify.domain.FindSpotifyAlbum
 import es.kix2902.cd2spotify.domain.UseCase
@@ -23,6 +25,9 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
 
     private val _errorLiveData = SingleLiveEvent<Int>()
     val error: LiveData<Int> = _errorLiveData
+
+    private val _album = MutableLiveData<Spotify.Album>(null)
+    val album: LiveData<Spotify.Album> = _album
 
     fun findBarcode(barcode: String) {
         findRelease.invoke(barcode) {
@@ -42,7 +47,7 @@ class SpotifyViewModel(application: Application) : AndroidViewModel(application)
         findSpotifyAlbum.invoke(release) {
             when (it) {
                 is UseCase.Result.Success<*> -> {
-
+                    _album.value = it.data as Spotify.Album
                 }
                 UseCase.Result.Error -> {
                     _errorLiveData.value = ErrorActivity.ERROR_SPOTIFY_NOT_FOUND
